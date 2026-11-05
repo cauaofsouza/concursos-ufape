@@ -67,22 +67,26 @@ class Concurso extends Model
 
     public function salvarArquivos(StoreConcursoRequest $request)
     {
-        if ($request->edital_geral != null) {
-            $path = 'concursos/' . $this->id . '/';
-            $nome = 'edital_geral.' . $request->file('edital_geral')->getClientOriginalExtension();
-            Storage::putFileAs('public/' . $path, $request->edital_geral, $nome);
+        $path = 'concursos/' . $this->id . '/';
+
+        if ($request->hasFile('edital_geral')) {
+            $arquivo = $request->file('edital_geral');
+            $nome = 'edital_geral.' . $arquivo->getClientOriginalExtension();
+            Storage::disk('public')->putFileAs($path, $arquivo, $nome);
             $this->edital_geral = $path . $nome;
         }
-        if ($request->file('edital_específico') != null) {
-            $path = 'concursos/' . $this->id . '/';
-            $nome = 'edital_especifico.' . $request->file('edital_específico')->getClientOriginalExtension();
-            Storage::putFileAs('public/' . $path, $request->file('edital_específico'), $nome);
+
+        if ($request->hasFile('edital_específico')) {
+            $arquivo = $request->file('edital_específico');
+            $nome = 'edital_especifico.' . $arquivo->getClientOriginalExtension();
+            Storage::disk('public')->putFileAs($path, $arquivo, $nome);
             $this->edital_especifico = $path . $nome;
         }
-        if ($request->file('declaração_de_veracidade') != null) {
-            $path = 'concursos/' . $this->id . '/';
-            $nome = 'declaracao_de_veracidade.' . $request->file('declaração_de_veracidade')->getClientOriginalExtension();
-            Storage::putFileAs('public/' . $path, $request->file('declaração_de_veracidade'), $nome);
+
+        if ($request->hasFile('declaração_de_veracidade')) {
+            $arquivo = $request->file('declaração_de_veracidade');
+            $nome = 'declaracao_de_veracidade.' . $arquivo->getClientOriginalExtension();
+            Storage::disk('public')->putFileAs($path, $arquivo, $nome);
             $this->declaracao_veracidade = $path . $nome;
         }
     }
