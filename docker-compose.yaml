@@ -1,0 +1,65 @@
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+
+    container_name: concursos_app
+    working_dir: /var/www/html
+
+    ports:
+      - "8001:8000"
+
+    volumes:
+      - .:/var/www/html
+      - vendor:/var/www/html/vendor
+      - composer_cache:/tmp/composer-cache
+
+    environment:
+      COMPOSER_CACHE_DIR: /tmp/composer-cache
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+    networks:
+      - concursos_network
+
+  db:
+    image: postgres:16
+
+    container_name: concursos_db
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: concursos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: cauacaua
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d concursos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - concursos_network
+
+volumes:
+  vendor:
+  composer_cache:
+  postgres_data:
+
+networks:
+  concursos_network:
+    driver: bridge
